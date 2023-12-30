@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import TodoList from "./todoList";
+import AddTodo from "./AddTodo";
+import EditTodoForm from "./EditTodoForm";
 const App = () => {
   const [toDos, setToDos] = useState([]);
   const [toDo, setToDo] = useState("");
@@ -6,7 +9,10 @@ const App = () => {
   // adding todo task
   const addItem = () => {
     if (toDo.trim().length > 0) {
-      setToDos([...toDos, { id: Date.now(), task: toDo, status: false }]);
+      setToDos([
+        ...toDos,
+        { id: Date.now(), task: toDo, status: false, isEditing: false },
+      ]);
       setToDo("");
     }
   };
@@ -38,49 +44,49 @@ const App = () => {
     );
   };
 
+  const handleEditTodo = (id) => {
+    setToDos(
+      toDos.filter((todo) => {
+        if (todo.id === id) todo.isEditing = !todo.isEditing;
+        return todo;
+      })
+    );
+  };
+
+  const editTask = (id, task) => {
+    if (task.trim().length > 0) {
+      setToDos(
+        toDos.map((item) => {
+          if (item.id === id) {
+            item.task = task;
+            item.isEditing = !item.isEditing;
+          }
+          return item;
+        })
+      );
+    }
+  };
+
   return (
     <div className="todo-container">
       <h1 className="todo-title">Todo App</h1>
       <div className="input-section">
-        <input
-          className="todo-input"
-          type="text"
-          placeholder="Do something😃"
-          value={toDo}
-          onChange={(e) => {
-            setToDo(e.target.value);
-          }}
-        />
-        <button className="todo-button" onClick={addItem}>
-          Add
-        </button>
+        <AddTodo toDo={toDo} setToDo={setToDo} addItem={addItem} />
       </div>
       <ul className="todo-list">
         {toDos
           .map((item) => {
-            return (
-              <li className="todo-item" key={item.id}>
-                <div className="todo-content">
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    onClick={(e) => handleCheckbox(e, item.id)}
-                    checked={item.status ? true : false}
-                  />
-                  {console.log(item.status)}
-                  <span
-                    className={`task-text ${item.status ? "completed" : ""}`}
-                  >
-                    {item.task}
-                  </span>
-                </div>
-                <i
-                  className="fa-solid fa-x"
-                  onClick={() => {
-                    deleteTask(item.id);
-                  }}
-                ></i>
-              </li>
+            /* checking if the item is on edit or not */
+            return item.isEditing ? (
+              <EditTodoForm key={item.id} task={item} editTodo={editTask} />
+            ) : (
+              <TodoList
+                key={item.id}
+                item={item}
+                handleCheckbox={handleCheckbox}
+                deleteTask={deleteTask}
+                handleEditTodo={handleEditTodo}
+              />
             );
           })
           .sort((a, b) => a.status - b.status)}
