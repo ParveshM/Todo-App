@@ -10,6 +10,7 @@ This application allows users to create, manage, and delete tasks in a todo list
 
 - Add new tasks to the list.
 - Mark tasks as completed by checking them.
+- Edit tasks.
 - Delete tasks from the list.
 
 ## Live Demo 🌐
